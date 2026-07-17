@@ -223,15 +223,15 @@
   .sheet .tagline{font-size:10px;letter-spacing:.34em;color:var(--magenta);margin-bottom:8px}
   .sheet h3{font-family:var(--disp);font-weight:800;font-size:24px;margin:0 0 14px;letter-spacing:.01em;color:var(--ink);text-shadow:0 0 18px rgba(47,243,224,.25)}
   .sheet p{font-size:13px;line-height:1.6;color:var(--muted);letter-spacing:.02em;margin:0 0 20px}
-  .codewrap{display:flex;gap:10px}
+  .codewrap{display:flex;gap:10px;flex-wrap:wrap}
   .codewrap input{
-    flex:1;background:#0c0a1c;border:1px solid var(--line);border-radius:10px;color:var(--cyan);
+    flex:1 1 140px;min-width:0;background:#0c0a1c;border:1px solid var(--line);border-radius:10px;color:var(--cyan);
     font-family:var(--mono);font-size:16px;letter-spacing:.3em;text-align:center;padding:14px;text-transform:uppercase;
   }
   .codewrap input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 14px rgba(47,243,224,.35)}
   .codewrap button,.ghost{
     font-family:var(--mono);font-size:12px;letter-spacing:.16em;border-radius:10px;cursor:pointer;border:none;
-    padding:0 20px;color:#0a0713;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--violet));
+    flex:0 0 auto;padding:14px 22px;color:#0a0713;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--violet));
     box-shadow:0 0 18px rgba(47,243,224,.4);
   }
   .hint{margin-top:14px;font-size:10px;letter-spacing:.18em;color:var(--dim);text-align:center}
