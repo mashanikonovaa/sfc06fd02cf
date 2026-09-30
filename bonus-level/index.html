@@ -233,7 +233,6 @@ button{font:inherit;color:inherit}
 
 /* achievements */
 .ach{display:grid;gap:16px}
-@media (min-width:560px){.ach{grid-template-columns:1fr 1fr}}
 .a{display:flex;gap:14px;align-items:flex-start;padding:14px;background:var(--night)}
 .a .spr{margin-top:2px}
 .a b{display:block;margin-bottom:4px;font:600 16px/1.2 var(--f-pixel)}
@@ -544,9 +543,8 @@ const QUEST = {
 
   achievements: [
     { sprite: "chili", title: "Чилийская бейба",     text: "Острая, как чили, и расслабленная, как чилл. Редкое сочетание." },
-    { sprite: "crown", title: "Стратег всея Руси",   text: "Не всей, а именно всея. Просчитывает жизнь на пять ходов вперёд, пока остальные выбирают, где поесть." },
-    { sprite: "owl",   title: "Мудрец в теле юнца",  text: "Советы уровня древнего старца, лицо уровня студентки." },
-    { sprite: "coin",  title: "Прощает опоздавших",  text: "Особенно подруг, которые поздравили с опозданием. Очень на это надеюсь." }
+    { sprite: "crown", title: "Стратег всея Руси",   text: "Просчитывает жизнь на пять ходов вперёд, пока остальные выбирают, где поесть." },
+    { sprite: "owl",   title: "Мудрец в теле юнца",  text: "Советы уровня древнего старца, лицо уровня студентки." }
   ],
 
   // Секретное слово: его буквы по одной (вперемешку) выдаются за уровни и открываются в финале.
