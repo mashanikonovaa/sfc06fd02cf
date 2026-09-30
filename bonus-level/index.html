@@ -276,6 +276,29 @@ button{font:inherit;color:inherit}
 .ltile{appearance:none;border:0;cursor:pointer;min-width:40px;height:46px;padding:0 8px;font:700 22px/1 var(--f-pixel);color:var(--on-gold);background:var(--gold);-webkit-tap-highlight-color:transparent;
   box-shadow:0 -3px 0 0 var(--shadow),0 3px 0 0 var(--shadow),-3px 0 0 0 var(--shadow),3px 0 0 0 var(--shadow),inset 0 -4px 0 var(--gold-lo)}
 .ltile:disabled{opacity:.3;cursor:default}
+.opts{display:grid;gap:14px;margin-top:20px}
+.opt{--bc:var(--line);appearance:none;border:0;cursor:pointer;width:100%;min-height:56px;display:flex;align-items:center;gap:14px;padding:12px 14px;text-align:left;
+  font:500 17px/1.3 var(--f-body);color:var(--ink);background:var(--night);-webkit-tap-highlight-color:transparent;
+  box-shadow:0 -3px 0 0 var(--bc),0 3px 0 0 var(--bc),-3px 0 0 0 var(--bc),3px 0 0 0 var(--bc)}
+.opt .ol{flex:none;width:20px;font:12px/1 var(--f-arcade);color:var(--gold)}
+@media (hover:hover){.opt:not(:disabled):hover{--bc:var(--gold)}}
+.opt:active:not(:disabled){transform:translateY(2px)}
+.opt:disabled{cursor:default}
+.opt.right{--bc:var(--mint);background:#10392f}
+.opt.right .ol{color:var(--mint)}
+.opt.wrong{--bc:var(--pink-lo);color:var(--dim);text-decoration:line-through}
+.opt.gone{opacity:.25}
+.life{margin-top:22px;padding-top:18px;border-top:3px dashed var(--line)}
+.life-h{margin:0 0 12px;font:8px/1.6 var(--f-arcade);color:var(--dim)}
+.life-row{display:flex;flex-wrap:wrap;gap:12px}
+.lbtn{appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:8px 12px;font:600 15px/1.1 var(--f-pixel);color:var(--ink);background:var(--night-3);-webkit-tap-highlight-color:transparent;
+  box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
+.lbtn:active:not(:disabled){transform:translateY(2px)}
+.lbtn:disabled{opacity:.4;cursor:default}
+.lbtn .ff{font:10px/1 var(--f-arcade);color:var(--gold)}
+.life-out{margin-top:14px;padding:12px 14px;background:var(--night);color:var(--ink);font-size:15px;line-height:1.5}
+.life-out p{margin:0 0 6px}
+.life-out .mlink{color:var(--pink-hi)}
 .ltile.bk{color:var(--ink);background:var(--night-3);font-size:18px;box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
 
 /* reward */
@@ -398,7 +421,7 @@ button{font:inherit;color:inherit}
 
   <section class="panel" id="mapSec" aria-labelledby="mapH">
     <div class="sec-head"><div><p class="eyebrow">WORLD MAP</p><h2 class="h2" id="mapH">Карта уровней</h2></div><span class="meta" id="mapMeta"></span></div>
-    <p class="note">Жми на открытый уровень, находи коды и забирай награды. За каждый уровень даётся буква слова-ключа для финального босса.</p>
+    <p class="note" id="mapNote"></p>
     <div class="kw" id="kw"><span class="kw-label">СЛОВО-<br>КЛЮЧ</span><div class="tiles" id="kwTiles"></div></div>
     <div class="map" id="map"><canvas id="path" aria-hidden="true"></canvas><ol class="levels" id="levels"></ol></div>
   </section>
@@ -479,16 +502,33 @@ button{font:inherit;color:inherit}
 <script>
 /* =====================================================================
    НАСТРОЙКИ КВЕСТА. Всё, что нужно поменять под подругу, — здесь.
-   В любом тексте можно писать {author}, {until}, {name}: подставятся
-   автор, дата «продления» и имя. *Звёздочки* делают текст жирным.
+   В любом тексте можно писать {author}, {until}, {name}, {birthday},
+   {age}, {coupons}: подставятся автор, дата «продления», имя, дата ДР,
+   возраст и срок купонов. *Звёздочки* делают текст жирным.
    ===================================================================== */
 const QUEST = {
-  player: "Именинница",          // имя подруги, как оно будет в игре
-  age: null,                     // сколько исполнилось, например 29; null — просто «LVL UP»
+  player: "Лида",                // имя, как оно будет в игре
+  age: 28,                       // сколько исполнилось
+  birthday: "27 сентября",
   playerClass: "Королева вечеринок",
   author: "Маша",                // подпись в письме и титрах
-  extendedUntil: "31 декабря",   // до какого числа «продлён» день рождения и действуют купоны
+  extendedUntil: "1 октября",    // до какого числа «продлён» день рождения
+  couponsUntil: "следующего дня рождения", // купоны действуют до …
   photo: "",                     // фото на аватар (файл рядом со страницей); пусто — пиксельная корона
+
+  lead: "Праздник официально продлён до {until}. Отвечай на вопросы про нас, забирай награды и собирай слово-ключ. Застряла? Зови мужа или пиши мне.",
+  mapNote: "Каждый уровень — вопрос про нас или про тебя. Не знаешь ответ — бери подсказку: помощь мужа, сообщение мне или 50 на 50. За каждый уровень даётся буква слова-ключа для финального босса.",
+  ticker: ["День рождения {birthday} продлён до {until}", "Подсказки бесплатно", "Муж знает ответы", "Жизни: ∞", "{name} держит рекорд"],
+
+  // Подсказки на каждом уровне. {n} — номер уровня.
+  lifelines: {
+    husband: { label: "Помощь мужа",
+      text: "Иди к мужу и скажи: «Уровень {n}, спасай». У него шпаргалка со всеми подсказками и ответами." },
+    friend: { label: "Написать Маше",
+      text: "Напиши мне: «Уровень {n}, помоги». Отвечу подсказкой, даже если у меня ночь.",
+      link: "" }                 // например "https://t.me/ник" — появится кнопка «Открыть чат»
+  },
+  skipCode: "БЛАТ",              // засчитывает любой уровень. Знают только муж и Маша.
 
   stats: [
     { label: "Обаяние", value: 10 },
@@ -509,75 +549,77 @@ const QUEST = {
   finalWord: "ЛЮБИМА",
   finalWordText: "Это не просто код. Это то, что я хочу, чтобы ты про себя помнила. Особенно в дни, когда кто-то забывает поздравить.",
 
-  // Уровни. type: start | find | quiz | task | drop | boss
-  // code — один или несколько правильных ответов (регистр, пробелы и Ё не важны)
-  // secret: true — название скрыто, пока уровень закрыт
-  // opensAt: "2026-09-30T19:00" — уровень откроется только в это время (с таймером)
+  // Уровни.
+  // Вопрос с вариантами: options + answer (правильный вариант, порядок на экране перемешается).
+  // Вопрос с вводом: code — один или несколько ответов. Регистр, пробелы и Ё не важны.
+  //   Звёздочка в конце значит «любое окончание»: "ПИТЕР*" примет и «Питер», и «в Питере».
+  // nudge — встроенный намёк. label — подпись уровня на карте. secret — название скрыто, пока уровень закрыт.
   levels: [
     {
-      type: "start", title: "Точка сохранения",
-      task: "Игра загружена. Код запуска написан на открытке, с которой ты сюда попала. Введи его, и день рождения официально продолжится.",
-      code: ["СТАРТ"],
-      hint: "Посмотри на открытку ещё раз. Код написан крупно, под ссылкой.",
+      type: "quiz", label: "Разминка", title: "Сколько свечей?",
+      task: "Сколько свечей должно было гореть на твоём торте {birthday}?",
+      code: ["28*", "ДВАДЦАТЬВОСЕМ*"],
+      nudge: "Посмотри на свой уровень в профиле.",
       reward: { sprite: "coin", title: "Стартовый бонус",
-        text: "Праздник продлён до {until}. Поздравления, которые не дошли вовремя, теперь приходят в почту. Первое уже там." },
+        text: "Верно, 28. Праздник официально продлён до {until}, а в почте уже лежит первое письмо." },
       item: { id: "vent", sprite: "heart", name: "Купон «Выговориться»",
-        text: "Два часа можно ругать всех, кто забыл поздравить. Я не спорю, не даю советов и только поддакиваю." }
+        text: "Два часа по видеосвязи можно ругать всех, кто забыл поздравить. Я не спорю, не даю советов и только поддакиваю." }
     },
     {
-      type: "find", title: "Холодный старт",
-      task: "Следующий конверт спрятан там, где всегда *плюс четыре*, но атмосфера тёплая. Внутри код.",
-      code: ["ПУЗЫРЬКИ"],
-      hint: "Кухня. Большой белый шкаф, который гудит.",
-      reward: { sprite: "star", title: "Баф «Праздник»",
-        text: "Бутылка игристого твоя. Праздник без пузырьков считается багом, так что мы его исправили. Баф действует весь вечер." }
-    },
-    {
-      type: "quiz", title: "Вопрос на засыпку", secret: true,
-      task: "Проверим, что ты это ты. *Где мы с тобой познакомились?* Ответ одним словом.",
-      code: ["УНИВЕР", "УНИВЕРСИТЕТ"],   // ← поменять на правильный ответ
-      hint: "Вспомни, с чего всё началось.",
+      type: "quiz", label: "Про нас", title: "Как всё начиналось", secret: true,
+      task: "Где мы с тобой познакомились?",
+      options: ["В универе", "В очереди за шаурмой", "На чужой свадьбе", "В детском саду"],
+      answer: "В универе",                                  // ← ПРИМЕР, заменить
       reward: { sprite: "heart", title: "Бонус памяти",
         text: "Правильно. С этого всё и началось, и это до сих пор моё любимое совпадение." },
-      item: { id: "sos", sprite: "star", name: "Карта «Экстренный вызов»",
-        text: "Звонишь, и я приезжаю. Без вопросов и в течение часа, если Москва не встанет в пробку." }
+      item: { id: "call", sprite: "phone", name: "Купон «Звонок в любое время»",
+        text: "Звонишь хоть в три ночи, я беру трубку. Разница во времени не аргумент." }
     },
     {
-      type: "find", title: "Спа-режим", secret: true,
-      task: "Награда спрятана там, где *зеркало видит тебя чаще, чем я*. Ищи конверт с кодом.",
-      code: ["ПЕНА"],
-      hint: "Ванная. Проверь у раковины и на полке с косметикой.",
-      reward: { sprite: "heart", title: "Баф «Релакс»",
-        text: "Маски, пена и официальное право сегодня ничего не делать. Здоровье восстанавливается на 100%." },
-      item: { id: "photo", sprite: "camera", name: "Купон «Фотограф на час»",
-        text: "Час, когда я снимаю тебя, пока не получится идеальный кадр. Без нытья с моей стороны." }
+      type: "quiz", label: "Про тебя", title: "Фирменный напиток", secret: true,
+      task: "Что ты заказываешь на любой вечеринке, даже не открывая меню?",
+      options: ["Апероль-шприц", "Просекко", "Чай с лимоном", "Всё, что нальют"],
+      answer: "Апероль-шприц",                              // ← ПРИМЕР
+      reward: { sprite: "star", title: "Баф «Праздник»",
+        text: "Точно. Бармены по всему городу уже узнают тебя в лицо." },
+      item: { id: "food", sprite: "gift", name: "Купон «Доставка вкусного»",
+        text: "Выбираешь любую еду или десерт с доставкой, я оплачиваю." }
     },
     {
-      type: "task", title: "Задание гейм-мастера", secret: true,
-      task: "Сфотографируйся с *самым нелепым предметом в квартире* и пришли фото мне. Код отправлю в ответ, как только оценю шедевр.",
-      code: ["ШЕДЕВР"],
-      hint: "Код у гейм-мастера. Просто напиши мне.",
-      reward: { sprite: "star", title: "Шедевр принят",
-        text: "Жюри в восторге. Фото официально входит в наш архив компромата." },
+      type: "quiz", label: "Про нас", title: "Первое путешествие", secret: true,
+      task: "Куда мы с тобой впервые поехали вместе? Напиши город.",
+      code: ["ПИТЕР*", "САНКТ*", "СПБ"],                     // ← ПРИМЕР
+      nudge: "Там разводят мосты.",                         // ← ПРИМЕР
+      reward: { sprite: "star", title: "Бонус путешественницы",
+        text: "Да! Готова поспорить, ты сейчас улыбнулась." },
       item: { id: "wish", sprite: "crown", name: "Карта желания",
         text: "Одно любое желание. В рамках закона, приличий и моей зарплаты." }
     },
     {
-      type: "drop", title: "Курьер уже в пути", secret: true,
-      opensAt: null,                  // например "2026-09-30T19:00"
-      task: "Скоро в дверь позвонят. Вместе с доставкой придёт открытка, код на ней.",
-      code: ["ЦВЕТЫ"],
-      hint: "Код написан на открытке из доставки.",
-      reward: { sprite: "gift", title: "Аирдроп получен",
-        text: "Доставка по адресу «лучшая подруга» выполнена. Курьеру спасибо, тебе всё остальное." },
+      type: "quiz", label: "Про тебя", title: "Сериал на повторе", secret: true,
+      task: "Какой сериал ты пересматривала больше всего раз?",
+      options: ["Друзья", "Секс в большом городе", "Игра престолов", "Интерны"],
+      answer: "Друзья",                                     // ← ПРИМЕР
+      reward: { sprite: "heart", title: "Бонус уюта",
+        text: "Засчитано. Предлагаю пересмотреть его ещё раз, теперь в честь дня рождения." },
       item: { id: "dinner", sprite: "coin", name: "Купон «Ужин за мой счёт»",
-        text: "Ты выбираешь ресторан, я плачу. Хоть завтра." }
+        text: "Когда увидимся, ресторан выбираешь ты, плачу я." }
+    },
+    {
+      type: "quiz", label: "Про нас", title: "Проверка на смекалку", secret: true,
+      task: "Как я записана у тебя в телефоне?",
+      code: ["МАША*"],                                      // ← ПРИМЕР
+      nudge: "Открой контакты и проверь. Это не жульничество, это смекалка.",
+      reward: { sprite: "star", title: "Бонус смекалки",
+        text: "Засчитано. Дальше только финальный босс." },
+      item: { id: "day", sprite: "star", name: "Купон «День вместе»",
+        text: "Когда я приеду, один день целиком твой. Куда скажешь, туда и пойдём." }
     },
     {
       type: "boss", title: "Финальный босс",
       task: "На каждом уровне ты получала по букве. Собери из них слово: это ключ к главному призу. Буквы можно нажимать прямо здесь.",
-      code: null,                     // null — ответом будет finalWord
-      hint: "Шесть букв. Это то, что я хочу, чтобы ты про себя помнила."
+      code: null,                                           // null — ответом будет finalWord
+      nudge: "Шесть букв. Это то, что я хочу, чтобы ты про себя помнила."
     }
   ],
 
@@ -588,36 +630,36 @@ const QUEST = {
     { system: true, after: 0, from: "Служба доставки поздравлений",
       text: "Заявка принята. Часть поздравлений не дошла до тебя вовремя, приносим извинения. Недоставленные письма будут приходить сюда по мере прохождения уровней." },
     { from: "Коллега (пример)",
-      text: "Здесь будет поздравление от коллеги. Можно текст, а можно ссылку на видео или голосовое." },
+      text: "Здесь будет поздравление от коллеги или друга. Можно текст, а можно ссылку на видео или голосовое." },
     { from: "Подруга (пример)",
       text: "И здесь тоже. Чем больше людей напишет, тем круче будет почта." },
     { from: "{author}",
-      text: "Это письмо от меня. Спасибо, что ты есть. Впереди финальный босс, ты справишься." }
+      text: "Это письмо от меня. Я далеко, но весь этот квест мысленно рядом с тобой. Впереди финальный босс, ты справишься." }
   ],
 
   prize: {
     title: "Главный приз",
-    where: "Загляни в шкаф в спальне, на верхнюю полку.",   // ← где будет подарок
-    text: "Там подарок, который я выбирала дольше, чем готова признать."
+    where: "Он у мужа. Подойди к нему и скажи слово-ключ.",       // ← поменять, когда решишь с подарком
+    text: "Выбирала долго и с любовью. Надеюсь, угадала."
   },
 
   letter: [
     "Я знаю, что твой день рождения прошёл не так, как ты заслуживаешь. И я тоже хороша, поздравила тебя кое-как. Мне правда стыдно.",
-    "Поэтому я решила не просто извиниться, а продлить тебе праздник. Все эти уровни, конверты и купоны нужны, чтобы ты точно знала: тебя любят, помнят и очень ценят. Даже если некоторые (я) иногда тупят.",
-    "С днём рождения. С опозданием, зато от всего сердца."
+    "Я сейчас далеко и не могу обнять тебя лично, поэтому решила хотя бы продлить тебе праздник. Все эти вопросы, буквы и купоны нужны, чтобы ты точно знала: тебя любят, помнят и очень ценят. Даже если некоторые (я) иногда тупят.",
+    "С днём рождения, {name}. С опозданием, зато от всего сердца."
   ],
   signature: "Твоя {author}",
 
   credits: [
     ["СЦЕНАРИЙ И ПОСТАНОВКА", "{author}"],
     ["ОТВЕТСТВЕННАЯ ЗА ОПОЗДАНИЕ С ПОЗДРАВЛЕНИЕМ", "тоже {author}"],
-    ["КОНВЕРТЫ, СКОТЧ И ЛОГИСТИКА", "служба доставки хорошего настроения"],
+    ["ХРАНИТЕЛЬ ПОДСКАЗОК И ГЛАВНОГО ПРИЗА", "муж"],
     ["СПЕЦИАЛЬНАЯ БЛАГОДАРНОСТЬ", "всем, кто тебя любит.\nИх больше, чем кажется."]
   ],
   creditsLast: "Продолжение следует. Следующий день рождения я не пропущу.",
 
   usedNote: "Сделай скриншот и пришли мне. Это официальный запрос.",
-  footer: "Сделано с любовью и небольшим опозданием."
+  footer: "Сделано с любовью, издалека и с небольшим опозданием."
 };
 </script>
 
@@ -634,7 +676,8 @@ const DPR = Math.min(3, Math.max(1, Math.ceil(window.devicePixelRatio || 1)));
 
 /* ---------- text ---------- */
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const T = s => String(s ?? "").replace(/\{(author|until|name)\}/g, (_, k) => ({ author: Q.author, until: Q.extendedUntil, name: Q.player })[k] || "");
+const T = s => String(s ?? "").replace(/\{(author|until|name|birthday|age|coupons)\}/g, (_, k) => String(({ author: Q.author, until: Q.extendedUntil, name: Q.player, birthday: Q.birthday, age: Q.age, coupons: Q.couponsUntil })[k] ?? ""));
+const fillN = (s, i) => String(s ?? "").replace(/\{n\}/g, i + 1);
 const rich = s => esc(T(s)).replace(/\*(.+?)\*/g, "<b>$1</b>");
 const paras = s => String(s ?? "").split(/\n+/).filter(Boolean).map(p => `<p>${rich(p)}</p>`).join("");
 const norm = s => String(s ?? "").toUpperCase().replace(/Ё/g, "Е").replace(/[^0-9A-ZА-Я]/g, "");
@@ -739,6 +782,8 @@ const SPR = {
   spk:     ["...s.....", "..ss..s..", "ssss...s.", "ssss.s.s.", "ssss...s.", "..ss..s..", "...s....."],
   spkOff:  ["...s.....", "..ss.....", "ssss.r.r.", "ssss..r..", "ssss.r.r.", "..ss.....", "...s....."],
   check:   ["........k", ".......kk", "k.....kk.", "kk...kk..", ".kk.kk...", "..kkk....", "...k....."],
+  ring:    ["...ccc...", "....c....", "..yyyyy..", ".yy...yy.", "yy.....yy", "yy.....yy", "yy.....yy", ".yy...yy.", "..yyyyy.."],
+  phone:   ["....s..", "....s..", "sssssss", "scccccs", "scccccs", "sssssss", "sdsdsds", "sssssss", "sdsdsds", "sssssss", "sdsdsds", "sssssss"],
   balloon: [".ppppp.", "pwppppp", "pwppppp", "ppppppp", "ppppppq", ".ppppq.", "..ppq..", "...q...", "...s...", "..s....", "...s..."]
 };
 const sprCache = {};
@@ -879,7 +924,7 @@ function renderLevels() {
     return `<li class="lv is-${st}${i % 2 ? " alt" : ""}${boss ? " boss" : ""}" data-i="${i}">` +
       `<button class="lv-btn" type="button" data-i="${i}" aria-label="${esc(label)}">` +
       `<span class="lv-node">${node}</span>` +
-      `<span class="lv-card"><span class="lv-type" style="--tc:${ty.color}">${ty.label}</span>` +
+      `<span class="lv-card"><span class="lv-type" style="--tc:${ty.color}">${esc(T(L.label || ty.label))}</span>` +
       `<span class="lv-title">${secret ? "???" : rich(L.title)}</span>` +
       `<span class="lv-status">${esc(status)}${st === "active" ? '<i class="go"></i>' : ""}</span></span>` +
       `</button></li>`;
@@ -914,7 +959,7 @@ function renderInv() {
       `<span class="tx"><span class="nm">${rich(it.name)}</span><span class="st">${used ? "Использован " + esc(used) : "Активировать"}</span></span>${used ? "" : '<i class="go"></i>'}</button>`;
   }).join("");
   $("#invMeta").textContent = `${got}/${ITEMS.length}`;
-  $("#invNote").textContent = `Купоны настоящие и действуют до ${T(Q.extendedUntil)}. Нажми на купон, чтобы его активировать.`;
+  $("#invNote").textContent = `Купоны настоящие и действуют до ${T(Q.couponsUntil || Q.extendedUntil)}. Нажми на купон, чтобы его активировать.`;
 }
 function renderMail() {
   const open = mailOpen(), sealed = MAIL.filter(g => g.after > state.stage);
@@ -945,8 +990,11 @@ function buildStatic() {
     sprHTML("cake", 6, "cake");
   const cake = $("#heroArt .cake"), a = sprite("cake", 6), b = sprite("cake2", 6);
   if (!reduced) { let f = false; setInterval(() => { f = !f; cake.src = f ? b.url : a.url; }, 380); }
-  $("#heroLead").textContent = `Праздник официально продлён до ${T(Q.extendedUntil)}. Проходи уровни, забирай награды и собирай поздравления, которые не дошли вовремя.`;
-  const items = (Q.ticker || ["День рождения продлён до {until}", "Поздравления доставляются", "Подсказки бесплатно", "Жизни: ∞", "Именинница держит рекорд"]).map(s => T(s).toUpperCase());
+  $("#heroLead").textContent = T(Q.lead || "Праздник официально продлён до {until}. Проходи уровни, забирай награды и собирай слово-ключ.");
+  $("#mapNote").textContent = T(Q.mapNote || "Жми на открытый уровень и забирай награды. За каждый уровень даётся буква слова-ключа для финального босса.");
+  $("#iOver .i-sub").textContent = Q.birthday ? `${T(Q.birthday)} · день рождения завершён` : "день рождения завершён";
+  $("#iBonus .i-sub").textContent = `день рождения продлён до ${T(Q.extendedUntil)}`;
+  const items = (Q.ticker || ["День рождения продлён до {until}", "Подсказки бесплатно", "Жизни: ∞", "{name} держит рекорд"]).map(s => T(s).toUpperCase());
   const line = items.map(s => `<span>★ ${esc(s)}</span>`).join("");
   $("#ticker").innerHTML = line + line;
   $("#avatar").innerHTML = Q.photo ? `<img class="photo" src="${esc(Q.photo)}" alt="">` : sprHTML("crown", 5);
@@ -994,42 +1042,109 @@ function closeSheet(silent) {
 }
 
 /* ---------- level sheet ---------- */
-const MISS = ["Не тот код. Но ход мыслей красивый.", "Мимо. Попытки бесконечные, пробуй ещё.", "Не подходит. Проверь буквы и попробуй снова.", "Почти. На самом деле нет. Ещё разок?"];
+const MISS = ["Не то. Но ход мыслей красивый.", "Мимо. Попытки бесконечные, пробуй ещё.", "Не подходит. Можно взять подсказку.", "Почти. На самом деле нет. Ещё разок?"];
 let missN = 0;
 function codesOf(j) {
   const L = LV[j];
   let c = L.code;
   if ((c == null || c === "") && L.type === "boss" && WORD) c = [WORD, "ТЫ" + WORD];
-  return [].concat(c == null ? [] : c).map(norm).filter(Boolean);
+  return [].concat(c == null ? [] : c)
+    .map(x => { const raw = String(x).trim(); return { s: norm(raw), stem: raw.endsWith("*") }; })
+    .filter(x => x.s);
+}
+const hit = (list, v) => list.some(x => x.stem ? (x.s.length >= 2 && v.includes(x.s)) : x.s === v);
+function shuffled(arr, seed) {
+  const a = arr.slice();
+  let s = 9301 + seed * 7919;
+  const r = () => (s = (s * 48271) % 2147483647) / 2147483647;
+  for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(r() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; }
+  return a;
 }
 function openLevel(i) {
   const st = lvState(i), L = LV[i], ty = typeOf(L), boss = L.type === "boss";
   if (st === "lock") { toast(`Сначала пройди уровень ${state.stage + 1}`); sfx("err"); return; }
   if (st === "done") { if (boss) showFinale(); else openReward(i, { fresh: false }); return; }
   sfx("tap");
+  const opts = !boss && Array.isArray(L.options) && L.options.length > 1 ? shuffled(L.options, i) : null;
+  const right = opts ? norm(L.answer ?? L.options[0]) : "";
+  const nudge = L.nudge || L.hint, LL = Q.lifelines || {};
   openSheet(body => {
     body.innerHTML =
-      `<p class="sh-eyebrow" style="--tc:${ty.color}">STAGE ${i + 1} · ${ty.arc}</p>` +
+      `<p class="sh-eyebrow" style="--tc:${ty.color}">STAGE ${i + 1} · ${esc(T(L.label || ty.label).toUpperCase())}</p>` +
       `<h2 class="sh-title" id="sheetTitle">${rich(L.title)}</h2>` +
       `<div class="sh-text">${paras(L.task)}</div>` +
       (boss && WORD ? `<div class="pick" id="pick" role="group" aria-label="Собранные буквы"></div>` : "") +
-      `<div class="lockbox" id="lockbox" hidden><p>Уровень откроется <b id="lbWhen"></b></p><div class="cd" id="lbCd"></div><p>Код раньше времени не сработает. Пока можно почитать почту.</p></div>` +
-      `<form class="code" id="codeForm" novalidate>` +
-        `<label class="sr" for="codeIn">Код уровня</label>` +
-        `<input id="codeIn" name="code" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="${boss ? "СЛОВО" : "КОД"}"${coarse ? "" : " data-autofocus"}>` +
-        `<button class="btn pink" type="submit">Ввод</button>` +
-      `</form>` +
+      `<div class="lockbox" id="lockbox" hidden><p>Уровень откроется <b id="lbWhen"></b></p><div class="cd" id="lbCd"></div><p>Раньше времени ответ не сработает.</p></div>` +
+      (opts
+        ? `<div class="opts" id="opts" role="group" aria-label="Варианты ответа">` +
+            opts.map((o, k) => `<button class="opt" type="button" data-ok="${norm(o) === right ? 1 : 0}"><span class="ol">${"ABCDEF"[k] || k + 1}</span><span>${rich(o)}</span></button>`).join("") +
+          `</div>`
+        : `<form class="code" id="codeForm" novalidate>` +
+            `<label class="sr" for="codeIn">Ответ</label>` +
+            `<input id="codeIn" name="code" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="60" placeholder="${boss ? "СЛОВО" : "ОТВЕТ"}"${coarse ? "" : " data-autofocus"}>` +
+            `<button class="btn pink" type="submit">Ввод</button>` +
+          `</form>`) +
       `<p class="err" id="err" role="status" aria-live="polite"></p>` +
-      (L.hint ? `<div><button class="linkbtn" type="button" id="hintBtn">Нужна подсказка</button><p class="hint" id="hint" hidden>${rich(L.hint)}</p><p class="free">Именинницам подсказки бесплатно, попытки бесконечные.</p></div>` : "");
-    const form = $("#codeForm", body), input = $("#codeIn", body), err = $("#err", body);
-    form.addEventListener("submit", e => { e.preventDefault(); submitCode(i, input.value, { form, input, err }); });
-    const hb = $("#hintBtn", body);
-    if (hb) hb.onclick = () => { $("#hint", body).hidden = false; hb.hidden = true; sfx("tap"); };
+      `<div class="life"><p class="life-h">LIFELINES</p><div class="life-row">` +
+        (LL.husband ? `<button class="lbtn" type="button" data-l="husband">${sprHTML("ring", 2)}<span>${esc(T(LL.husband.label))}</span></button>` : "") +
+        (LL.friend ? `<button class="lbtn" type="button" data-l="friend">${sprHTML("phone", 2)}<span>${esc(T(LL.friend.label))}</span></button>` : "") +
+        (opts && opts.length > 2 ? `<button class="lbtn" type="button" data-l="fifty" aria-label="50 на 50: убрать лишние варианты"><span class="ff">50:50</span></button>` : "") +
+        (nudge ? `<button class="lbtn" type="button" data-l="nudge">${sprHTML("lens", 2)}<span>Намёк</span></button>` : "") +
+      `</div><div class="life-out" id="lifeOut" hidden></div>` +
+      `<p class="free">Именинницам подсказки бесплатно, попытки бесконечные.</p></div>`;
+
+    const err = $("#err", body), out = $("#lifeOut", body);
+    const say = html => { out.innerHTML = html; out.hidden = false; };
+    body.querySelectorAll(".lbtn").forEach(b => {
+      b.onclick = () => {
+        const k = b.dataset.l;
+        sfx("tap");
+        if (k === "husband") say(`<p>${rich(fillN(LL.husband.text, i))}</p>`);
+        else if (k === "friend") say(`<p>${rich(fillN(LL.friend.text, i))}</p>` +
+          (LL.friend.link && /^https?:\/\//i.test(LL.friend.link) ? `<a class="mlink" href="${esc(LL.friend.link)}" target="_blank" rel="noopener">Открыть чат ↗</a>` : ""));
+        else if (k === "nudge") say(`<p>${rich(nudge)}</p>`);
+        else if (k === "fifty") {
+          const wrong = [...body.querySelectorAll('.opt[data-ok="0"]:not(:disabled)')].sort(() => Math.random() - 0.5);
+          const drop = wrong.slice(0, Math.max(0, wrong.length - 1));
+          drop.forEach(o => { o.disabled = true; o.classList.add("gone"); });
+          b.disabled = true;
+          say(drop.length
+            ? `<p>Убрала ${drop.length} ${plural(drop.length, "лишний вариант", "лишних варианта", "лишних вариантов")}. Осталось выбрать из двух.</p>`
+            : "<p>Лишних вариантов уже не осталось.</p>");
+        }
+      };
+    });
+
+    const optsEl = $("#opts", body);
+    if (optsEl) optsEl.addEventListener("click", e => {
+      const b = e.target.closest(".opt");
+      if (!b || b.disabled) return;
+      if (waiting(i)) { err.textContent = "Уровень ещё закрыт, дождись таймера."; return; }
+      if (b.dataset.ok === "1") {
+        b.classList.add("right");
+        optsEl.querySelectorAll(".opt").forEach(o => { o.disabled = true; });
+        err.textContent = "";
+        sfx("coin");
+        setTimeout(() => complete(i), reduced ? 0 : 650);
+      } else {
+        b.classList.add("wrong"); b.disabled = true;
+        err.textContent = MISS[missN++ % MISS.length];
+        sfx("err"); buzz(60);
+        optsEl.classList.remove("shake"); void optsEl.offsetWidth; optsEl.classList.add("shake");
+      }
+    });
+
+    const form = $("#codeForm", body), input = $("#codeIn", body);
+    if (form) form.addEventListener("submit", e => { e.preventDefault(); submitCode(i, input.value, { form, input, err }); });
+
     const lock = $("#lockbox", body), w = waiting(i);
-    lock.hidden = !w; form.hidden = w;
+    lock.hidden = !w;
+    if (form) form.hidden = w;
+    if (optsEl) optsEl.hidden = w;
     if (w) { $("#lbWhen", body).textContent = whenText(opensAt(i)); $("#lbCd", body).textContent = left(opensAt(i) - Date.now()); }
+
     const pick = $("#pick", body);
-    if (pick) {
+    if (pick && input) {
       const stack = [];
       collected().forEach(ch => {
         const b = document.createElement("button");
@@ -1051,19 +1166,20 @@ function submitCode(i, raw, ui) {
     ui.err.textContent = msg; sfx("err"); buzz(60);
     ui.form.classList.remove("shake"); void ui.form.offsetWidth; ui.form.classList.add("shake");
   };
-  if (!v) return fail("Сначала введи код.");
+  if (!v) return fail("Сначала напиши ответ.");
   if (waiting(i)) return fail("Уровень ещё закрыт, дождись таймера.");
-  if (codesOf(i).includes(v)) return complete(i);
-  for (let j = i + 1; j < N; j++) if (!waiting(j) && codesOf(j).includes(v)) return complete(j);
-  for (let j = 0; j < i; j++) if (codesOf(j).includes(v)) return fail(`Этот код уже сработал на уровне ${j + 1}. Нужен новый.`);
+  if (Q.skipCode && v === norm(Q.skipCode)) return complete(i, true);
+  if (hit(codesOf(i), v)) return complete(i);
+  for (let j = i + 1; j < N; j++) if (!waiting(j) && codesOf(j).some(x => !x.stem && x.s === v)) return complete(j);
+  for (let j = 0; j < i; j++) if (codesOf(j).some(x => !x.stem && x.s === v)) return fail(`Это ответ на уровень ${j + 1}. Тут нужен другой.`);
   fail(MISS[missN++ % MISS.length]);
 }
-function complete(to) {
+function complete(to, blat) {
   const prev = state.stage;
   state.stage = Math.max(state.stage, to + 1);
   save(); render(); buzz([25, 40, 25]);
   if (LV[to].type === "boss") { closeSheet(true); setTimeout(showFinale, reduced ? 0 : 220); }
-  else openReward(to, { fresh: true, prev });
+  else openReward(to, { fresh: true, prev, blat });
 }
 
 /* ---------- reward sheet (scratch card) ---------- */
@@ -1071,6 +1187,7 @@ function openReward(i, o) {
   const L = LV[i], R = L.reward || {}, isFresh = !!o.fresh, prev = o.prev ?? i;
   const gains = [];
   if (isFresh) {
+    if (o.blat) gains.push(["ring", "Засчитано по блату. Связи решают."]);
     if (i > prev) gains.push(["coin", `Прогресс восстановлен: засчитаны уровни ${prev + 1}–${i + 1}`]);
     const lt = []; for (let k = prev; k <= i; k++) if (lettersBy[k]) lt.push(...lettersBy[k]);
     if (lt.length) gains.push(["star", `${lt.length > 1 ? "Буквы" : "Буква"} для слова-ключа: ${lt.map(c => "«" + c + "»").join(", ")}`]);
@@ -1160,7 +1277,7 @@ function openItem(id) {
       `<div class="item-art">${sprHTML(it.sprite || "gift", 6)}</div>` +
       `<h2 class="sh-title" id="sheetTitle">${rich(it.name)}</h2>` +
       `<div class="sh-text">${paras(it.text)}</div>` +
-      `<p class="valid">Действует до ${esc(T(Q.extendedUntil))}</p>` +
+      `<p class="valid">Действует до ${esc(T(Q.couponsUntil || Q.extendedUntil))}</p>` +
       `<div id="itemAct">${used
         ? `<p class="used-note">Активирован ${esc(used)}. ${rich(Q.usedNote || "")}</p>`
         : `<div class="row2"><button class="btn" type="button" id="useBtn" data-autofocus>Активировать</button></div>`}</div>`;
